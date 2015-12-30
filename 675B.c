@@ -50,8 +50,20 @@ task usercontrol()
 
 	while (true)
 	{
-		if(getTaskState(flywheelSpeedAdjuster) == taskStateStopped && launcherBtn)
+		if (rpmBtn)
+			rpmMode = !rpmMode;
+		if(getTaskState(flywheelSpeedSelector) == taskStateStopped && launcherBtn)
+			startTask(flywheelSpeedSelector);
+		if(getTaskState(flywheelSpeedAdjuster) == taskStateStopped && (speedUpBtn || speedDownBtn)) {
+			if (speedUpBtn) {
+				speedUp = true;
+			}
+			else {
+
+				speedDown = true;
+			}
 			startTask(flywheelSpeedAdjuster);
+		}
 		if (getTaskState(drive) == taskStateStopped)
 			startTask(drive);
 		if (getTaskState(rollerIntake) == taskStateStopped)

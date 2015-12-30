@@ -1,12 +1,20 @@
 #define launcherBtn vexRT(Btn6D)
+#define speedUpBtn vexRT(Btn8R)
+#define speedDownBtn vexRT(Btn7L)
+#define rpmBtn vexRT(Btn5D)
 #define flyEncLeft nMotorEncoder[topLeftLaunch]
 #define flyEncRight nMotorEncoder[topRightLaunch]
-
+bool rpmMode = false;
 bool launcherOn = false;
 bool lastLauncherBtn = false;
+static bool speedUp = false;
+static bool speedDown = false;
 
+//PINGAS
 int index = 0;
+int rpmIndex = 0;
 int motorValues[4]= {0, 80, 60, 40};
+int rpmValues[4] = {0, 2000, 1500, 1000};
 
 //RPM Calculations
 float lastTime;
@@ -15,17 +23,19 @@ float launcherRatio = 9.8;
 
 //Target RPMs and Motor Values
 float rpmHigh = 2000;
-float rpmMid;
-float rpmLow;
+float rpmMid = 1500;
+float rpmLow = 1000;
 float rpmGoal;
 float highSpeed = 80;
 float midSpeed = 65;
 float lowSpeed = 50;
+float currentSpeed = 0.0;
+float currentRpm = 0.0;
 
 //PID Constants
-float Kp = 0.025;
-float Ki = 0;
-float Kd = 0;
+float Kp = 0.000000025;
+float Ki = 0.000000025;
+float Kd = 0.000000025;
 float KpL = Kp;
 float KiL = Ki;
 float KdL = Kd;
@@ -52,8 +62,8 @@ float dRight;
 
 float integralActiveZone = 0; //value of rpm after which proportion stops taking effect
 
-float powerLeft = 60.0;
-float powerRight = 60.0;
+float powerLeft = 0.0;
+float powerRight = 0.0;
 
 void setFlywheels(float left, float right)
 {
@@ -68,19 +78,6 @@ void setFlywheels(float left, float right)
 	motor[btmRightLaunch] = r;
 	motor[topRightLaunch] = r;
 }
-
-task flywheelSpeedAdjuster()
-{
-setFlywheels(motorValues[index],motorValues[index]);
-		index++;
-		if (index > 3) {
-		    	 index = 0;
-		    	 launcherOn = false;
-		    	 lastLauncherBtn = false;
-    }
-    wait1Msec(1000);
-}
-
 void PIDlaunch(float target)
 {
 	float deltaTime = abs(nSysTime - lastTime);
@@ -144,4 +141,56 @@ void PIDlaunch(float target)
 	lastTime = nSysTime;
 
 	wait1Msec(20);
+}
+task flywheelSpeedSelector()
+{
+	if (rpmMode) {
+		float rpmValue = rpmValues[index];
+		PIDlaunch(rpmValue);
+		setFlywheels(powerLeft, powerRight);
+		rpmIndex++;
+		if (rpmIndex > 3) {
+			rpmIndex = 0;
+		}
+	}
+	else {
+		currentSpeed = motorValues[index];
+		setFlywheels(motorValues[index],motorValues[index]);
+		index++;
+		if (index > 3) {
+			index = 0;
+			launcherOn = false;
+			lastLauncherBtn = false;
+		}
+	}
+	wait1Msec(500);
+}
+
+task flywheelSpeedAdjuster()
+{
+	if (rpmMode) {
+		if (speedUp) {
+			currentRpm += 20;
+			PIDlaunch(currentRpm);
+			setFlywheels(powerLeft, powerRight);
+		}
+		else {
+			currentRpm -= 20;
+			PIDlaunch(currentRpm);
+			setFlywheels(powerLeft, powerRight);
+		}
+	}
+	else {
+		if (speedUp) {
+			currentSpeed += 2;
+			setFlywheels(currentSpeed, currentSpeed);
+			speedUp = false;
+		}
+		if (speedDown) {
+			currentSpeed -= 2;
+			setFlywheels(currentSpeed, currentSpeed);
+			speedDown = false;
+		}
+	}
+	wait1Msec(500);
 }
