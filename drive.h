@@ -1,4 +1,18 @@
+#define deployBtn vexRT(Btn8U)
+#define rampPiston SensorValue[rampDeploy]
+
 int driveThreshold = 20;
+
+bool lastRampBtn = false;
+bool rampOn = false;
+
+void deployer()
+{
+ rampPiston = 1;
+ wait1Msec(1000);
+ rampPiston = 0;
+}
+
 
 task drive()
 {
@@ -20,6 +34,13 @@ task drive()
 		motor[rightFront] = 0;
 		motor[rightBack] = 0;
 	}
+}
 
+task ramp()
+{
+	if (deployBtn && !lastRampBtn)
+	{
+		deployer();
+	}
 
 }
