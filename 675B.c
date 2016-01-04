@@ -1,5 +1,5 @@
 #pragma config(I2C_Usage, I2C1, i2cSensors)
-#pragma config(Sensor, dgtl2,  rampDeploy,     sensorDigitalOut)
+#pragma config(Sensor, dgtl3,  rampDeploy,     sensorDigitalOut)
 #pragma config(Sensor, I2C_1,  rightFlywheel,  sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_2,  leftFlywheel,   sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Motor,  port1,           leftBack,      tmotorVex393HighSpeed_HBridge, openLoop, reversed, driveLeft)
@@ -52,9 +52,13 @@ task usercontrol()
 	while (true)
 	{
 		if (rpmBtn)
+		{
 			rpmMode = !rpmMode;
+			wait1Msec(500);
+		}
 		if(getTaskState(flywheelSpeedSelector) == taskStateStopped && launcherBtn)
 			startTask(flywheelSpeedSelector);
+
 		if(getTaskState(flywheelSpeedAdjuster) == taskStateStopped && (speedUpBtn || speedDownBtn)) {
 			if (speedUpBtn) {
 				speedUp = true;
@@ -63,7 +67,12 @@ task usercontrol()
 				speedDown = true;
 			}
 			startTask(flywheelSpeedAdjuster);
+			wait1Msec(100);
 		}
+		if(rpmMode) {
+			PIDlaunch(currentRpm);
+			setFlywheels(powerLeft, powerRight);
+	  }
 		if (getTaskState(drive) == taskStateStopped)
 			startTask(drive);
 		if (getTaskState(rollerIntake) == taskStateStopped)

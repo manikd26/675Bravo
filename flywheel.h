@@ -14,7 +14,7 @@ static bool speedDown = false;
 int index = 0;
 int rpmIndex = 0;
 int motorValues[4]= {0, 80, 60, 40};
-int rpmValues[4] = {0, 2000, 1500, 1000};
+int rpmValues[4] = {0, 1500, 700, 500};
 
 //RPM Calculations
 float lastTime;
@@ -33,9 +33,9 @@ float currentSpeed = 0.0;
 float currentRpm = 0.0;
 
 //PID Constants
-float Kp = 0.000000025;
-float Ki = 0.000000025;
-float Kd = 0.000000025;
+float Kp = 0.01;
+float Ki = 0.00000;
+float Kd = 0.0;
 float KpL = Kp;
 float KiL = Ki;
 float KdL = Kd;
@@ -133,11 +133,13 @@ void PIDlaunch(float target)
 
 
 	//Final Power
-	powerLeft = pLeft + intLeft + dLeft; //should be P+I+D
-	powerRight = pRight + intRight + dRight;
+	powerLeft += pLeft + intLeft + dLeft; //should be P+I+D
+	powerRight += pRight + intRight + dRight;
 
 	lastErrorLeft = leftError;
 	lastErrorRight = rightError;
+	flyEncLeft = 0;
+	flyEncRight = 0;
 	lastTime = nSysTime;
 
 	wait1Msec(20);
@@ -145,9 +147,11 @@ void PIDlaunch(float target)
 task flywheelSpeedSelector()
 {
 	if (rpmMode) {
-		float rpmValue = rpmValues[index];
-		PIDlaunch(rpmValue);
-		setFlywheels(powerLeft, powerRight);
+		currentRpm = rpmValues[rpmIndex];
+		powerLeft = motorValues[rpmIndex];
+		powerRight = motorValues[rpmIndex];
+		//PIDlaunch(currentRpm);
+		//setFlywheels(powerLeft, powerRight);
 		rpmIndex++;
 		if (rpmIndex > 3) {
 			rpmIndex = 0;
@@ -171,8 +175,8 @@ task flywheelSpeedAdjuster()
 	if (rpmMode) {
 		if (speedUp) {
 			currentRpm += 20;
-			PIDlaunch(currentRpm);
-			setFlywheels(powerLeft, powerRight);
+			//PIDlaunch(currentRpm);
+			//setFlywheels(powerLeft, powerRight);
 		}
 		else {
 			currentRpm -= 20;

@@ -17,6 +17,8 @@ task rollerIntake()
 	if (intakeBtn == 0)
 		lastIntakeBtn = false;
 
+
+
 	if (intakeOutBtn == 1)
 		motor[intake] = -127;
 	else
