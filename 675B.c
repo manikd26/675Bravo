@@ -31,7 +31,8 @@ void pre_auton()
 	// Set bStopTasksBetweenModes to false if you want to keep user created tasks running between
 	// Autonomous and Tele-Op modes. You will need to manage all user created tasks if set to false.
 	bStopTasksBetweenModes = true;
-
+	flyEncLeft = 0;
+	flyEncRight = 0;
 	// All activities that occur before the competition starts
 	// Example: clearing encoders, setting servo positions, ...
 }
@@ -54,8 +55,11 @@ task usercontrol()
 		if (rpmBtn)
 		{
 			rpmMode = !rpmMode;
+			rpmIndex = 0;
+			index = 0;
 			wait1Msec(500);
 		}
+
 		if(getTaskState(flywheelSpeedSelector) == taskStateStopped && launcherBtn)
 			startTask(flywheelSpeedSelector);
 
@@ -69,10 +73,19 @@ task usercontrol()
 			startTask(flywheelSpeedAdjuster);
 			wait1Msec(100);
 		}
+
 		if(rpmMode) {
-			PIDlaunch(currentRpm);
-			setFlywheels(powerLeft, powerRight);
-	  }
+			if (currentRpm != 0) {
+				setPIDConstants();
+				PIDlaunch(currentRpm);
+		  }
+		  else {
+		  	powerLeft = 0.0;
+		  	powerRight = 0.0;
+		  }
+				setFlywheels(powerLeft, powerRight);
+		}
+
 		if (getTaskState(drive) == taskStateStopped)
 			startTask(drive);
 		if (getTaskState(rollerIntake) == taskStateStopped)

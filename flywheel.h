@@ -4,17 +4,11 @@
 #define rpmBtn vexRT(Btn5D)
 #define flyEncLeft nMotorEncoder[topLeftLaunch]
 #define flyEncRight nMotorEncoder[topRightLaunch]
-bool rpmMode = false;
+bool rpmMode = true;
 bool launcherOn = false;
 bool lastLauncherBtn = false;
 static bool speedUp = false;
 static bool speedDown = false;
-
-//PINGAS
-int index = 0;
-int rpmIndex = 0;
-int motorValues[4]= {0, 80, 60, 40};
-int rpmValues[4] = {0, 1500, 700, 500};
 
 //RPM Calculations
 float lastTime;
@@ -25,16 +19,20 @@ float launcherRatio = 9.8;
 float rpmHigh = 2000;
 float rpmMid = 1500;
 float rpmLow = 1000;
-float rpmGoal;
 float highSpeed = 80;
 float midSpeed = 65;
 float lowSpeed = 50;
+int index = 0;
+int rpmIndex = 0;
+int motorValues[4]= {0, 80, 60, 40};
+int rpmValues[4] = {0, 1650, 1300, 1200};
 float currentSpeed = 0.0;
 float currentRpm = 0.0;
 
+
 //PID Constants
-float Kp = 0.01;
-float Ki = 0.00000;
+float Kp = 0.0;
+float Ki = 0.0;
 float Kd = 0.0;
 float KpL = Kp;
 float KiL = Ki;
@@ -42,7 +40,20 @@ float KdL = Kd;
 float KpR = Kp;
 float KiR = Ki;
 float KdR = Kd;
+//Low
+float KpLow = 0.00005;
+float KiLow = 0.0000;
+float KdLow = 0.0000;
+//Mid
+float KpMid = 0.000001;
+float KiMid = 0.0;
+float KdMid = 0.0;
+//High
+float KpHigh = 0.00002;
+float KiHigh = 0.0;
+float KdHigh = 0.0;
 
+//PID Calculation Variables
 float rpmLeft;
 float rpmRight;
 
@@ -62,6 +73,7 @@ float dRight;
 
 float integralActiveZone = 0; //value of rpm after which proportion stops taking effect
 
+//Launcher Power
 float powerLeft = 0.0;
 float powerRight = 0.0;
 
@@ -78,8 +90,35 @@ void setFlywheels(float left, float right)
 	motor[btmRightLaunch] = r;
 	motor[topRightLaunch] = r;
 }
+void setPIDConstants()
+{
+	if (currentRpm == rpmValues[1])
+	{
+		Kp = KpHigh;
+		Ki = KiHigh;
+		Kd = KdHigh;
+	}
+	if (currentRpm == rpmValues[2])
+	{
+		Kp = KpMid;
+		Ki = KiMid;
+		Kd = KdMid;
+	}
+	if (currentRpm == rpmValues[3])
+	{
+		Kp = KpLow;
+		Ki = KiLow;
+		Kd = KdLow;
+	}
+}
 void PIDlaunch(float target)
 {
+	float KpL = Kp;
+	float KiL = Ki;
+	float KdL = Kd;
+	float KpR = Kp;
+	float KiR = Ki;
+	float KdR = Kd;
 	float deltaTime = abs(nSysTime - lastTime);
 	float rpmConversion = ((launcherRatio * 60000) / deltaTime) / ticksPerRev;
 	rpmLeft = abs(flyEncLeft * rpmConversion);
@@ -135,7 +174,6 @@ void PIDlaunch(float target)
 	//Final Power
 	powerLeft += pLeft + intLeft + dLeft; //should be P+I+D
 	powerRight += pRight + intRight + dRight;
-
 	lastErrorLeft = leftError;
 	lastErrorRight = rightError;
 	flyEncLeft = 0;
@@ -147,25 +185,25 @@ void PIDlaunch(float target)
 task flywheelSpeedSelector()
 {
 	if (rpmMode) {
+		rpmIndex++;
+		if (rpmIndex > 3) {
+			rpmIndex = 0;
+		}
 		currentRpm = rpmValues[rpmIndex];
 		powerLeft = motorValues[rpmIndex];
 		powerRight = motorValues[rpmIndex];
 		//PIDlaunch(currentRpm);
 		//setFlywheels(powerLeft, powerRight);
-		rpmIndex++;
-		if (rpmIndex > 3) {
-			rpmIndex = 0;
-		}
 	}
 	else {
-		currentSpeed = motorValues[index];
-		setFlywheels(motorValues[index],motorValues[index]);
 		index++;
 		if (index > 3) {
 			index = 0;
 			launcherOn = false;
 			lastLauncherBtn = false;
 		}
+		currentSpeed = motorValues[index];
+		setFlywheels(motorValues[index],motorValues[index]);
 	}
 	wait1Msec(500);
 }

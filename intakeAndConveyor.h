@@ -28,7 +28,7 @@ task rollerIntake()
 task conveyorBelt()
 {
 	if (conveyorBtn)
-		motor[conveyor] = 127;
+		motor[conveyor] = 120;
 	else if (conveyorOutBtn)
 		motor[conveyor] = -127;
 	else
