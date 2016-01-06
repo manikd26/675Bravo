@@ -9,7 +9,7 @@ bool rampOn = false;
 void deployer()
 {
  rampPiston = 1;
- wait1Msec(1000);
+ wait1Msec(500);
  rampPiston = 0;
 }
 

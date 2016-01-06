@@ -41,17 +41,17 @@ float KpR = Kp;
 float KiR = Ki;
 float KdR = Kd;
 //Low
-float KpLow = 0.00005;
-float KiLow = 0.0000;
-float KdLow = 0.0000;
+float KpLow = 0.0150; //0.025
+float KiLow = 0.00009; //0.005
+float KdLow = 0.000005;
 //Mid
-float KpMid = 0.000001;
-float KiMid = 0.0;
-float KdMid = 0.0;
+float KpMid = 0.0100;
+float KiMid = 0.000009;
+float KdMid = 0.00005;
 //High
-float KpHigh = 0.00002;
-float KiHigh = 0.0;
-float KdHigh = 0.0;
+float KpHigh = 0.0005;
+float KiHigh = 0.00;
+float KdHigh = 0.000;
 
 //PID Calculation Variables
 float rpmLeft;
@@ -180,7 +180,7 @@ void PIDlaunch(float target)
 	flyEncRight = 0;
 	lastTime = nSysTime;
 
-	wait1Msec(20);
+	wait1Msec(35);
 }
 task flywheelSpeedSelector()
 {
@@ -216,7 +216,7 @@ task flywheelSpeedAdjuster()
 			//PIDlaunch(currentRpm);
 			//setFlywheels(powerLeft, powerRight);
 		}
-		else {
+		else if (speedDown){
 			currentRpm -= 20;
 			PIDlaunch(currentRpm);
 			setFlywheels(powerLeft, powerRight);
@@ -228,7 +228,7 @@ task flywheelSpeedAdjuster()
 			setFlywheels(currentSpeed, currentSpeed);
 			speedUp = false;
 		}
-		if (speedDown) {
+		else if (speedDown) {
 			currentSpeed -= 2;
 			setFlywheels(currentSpeed, currentSpeed);
 			speedDown = false;
