@@ -16,9 +16,7 @@ float ticksPerRev = 392;
 float launcherRatio = 9.8;
 
 //Target RPMs and Motor Values
-float rpmHigh = 2000;
-float rpmMid = 1500;
-float rpmLow = 1000;
+float rpmHigh = 1650;
 float highSpeed = 80;
 float midSpeed = 65;
 float lowSpeed = 50;
@@ -40,18 +38,19 @@ float KdL = Kd;
 float KpR = Kp;
 float KiR = Ki;
 float KdR = Kd;
+
 //Low
-float KpLow = 0.0150; //0.025
-float KiLow = 0.00009; //0.005
-float KdLow = 0.000005;
+float KpLow = 0.0175000; //0.0150/0.0185
+float KiLow = 0.000095; //0.00009
+float KdLow = 0.00005; //0.000005
 //Mid
 float KpMid = 0.0100;
 float KiMid = 0.000009;
 float KdMid = 0.00005;
 //High
-float KpHigh = 0.0005;
-float KiHigh = 0.00;
-float KdHigh = 0.000;
+float KpHigh = 0.0005;//0.0005
+float KiHigh = 0.00000000;
+float KdHigh = 0.0000001;//0.0
 
 //PID Calculation Variables
 float rpmLeft;
@@ -71,7 +70,7 @@ float intRight;
 float dLeft;
 float dRight;
 
-float integralActiveZone = 0; //value of rpm after which proportion stops taking effect
+float integralActiveZone = 5.0; //value of rpm after which proportion stops taking effect
 
 //Launcher Power
 float powerLeft = 0.0;
@@ -235,4 +234,12 @@ task flywheelSpeedAdjuster()
 		}
 	}
 	wait1Msec(500);
+}
+
+task autoFlyWheel() {
+	motor[intake] = 127;
+	setFlywheels(80, 80);
+	while(true) {
+		PIDlaunch(1650);
+	}
 }

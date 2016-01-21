@@ -2,11 +2,11 @@
 #pragma config(Sensor, dgtl3,  rampDeploy,     sensorDigitalOut)
 #pragma config(Sensor, I2C_1,  rightFlywheel,  sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_2,  leftFlywheel,   sensorQuadEncoderOnI2CPort,    , AutoAssign )
-#pragma config(Motor,  port1,           leftBack,      tmotorVex393HighSpeed_HBridge, openLoop, reversed, driveLeft)
+#pragma config(Motor,  port1,           leftBack,      tmotorVex393HighSpeed_HBridge, openLoop, driveLeft)
 #pragma config(Motor,  port2,           leftFront,     tmotorVex393HighSpeed_MC29, openLoop, driveLeft)
 #pragma config(Motor,  port3,           rightFront,    tmotorVex393HighSpeed_MC29, openLoop, reversed, driveRight)
 #pragma config(Motor,  port4,           intake,        tmotorVex393TurboSpeed_MC29, openLoop)
-#pragma config(Motor,  port5,           topRightLaunch, tmotorVex393HighSpeed_MC29, openLoop, reversed, encoderPort, I2C_1)
+#pragma config(Motor,  port5,            topRightLaunch, tmotorVex393HighSpeed_MC29, openLoop, reversed, encoderPort, I2C_1)
 #pragma config(Motor,  port6,           btmRightLaunch, tmotorVex393HighSpeed_MC29, openLoop)
 #pragma config(Motor,  port7,           btmLeftLaunch, tmotorVex393HighSpeed_MC29, openLoop, reversed)
 #pragma config(Motor,  port8,           topLeftLaunch, tmotorVex393HighSpeed_MC29, openLoop, encoderPort, I2C_2)
@@ -26,6 +26,17 @@
 #include "drive.h"
 #include "intakeAndConveyor.h"
 
+void autonConveyor(int speed, int time)
+{
+	motor[conveyor] = speed;
+	wait1Msec(time);
+}
+void wait(int time)
+{
+	motor[conveyor] = 0;
+	wait1Msec(time);
+}
+
 void pre_auton()
 {
 	// Set bStopTasksBetweenModes to false if you want to keep user created tasks running between
@@ -39,11 +50,15 @@ void pre_auton()
 
 task autonomous()
 {
-	// .....................................................................................
-	// Insert user code here.
-	// .....................................................................................
-
-	AutonomousCodePlaceholderForTesting();  // Remove this function call once you have "real" code.
+	startTask(autoFlyWheel);
+	wait(2500);
+	autonConveyor(127, 250);
+	wait(750);
+	autonConveyor(127, 250);
+	wait(750);
+	autonConveyor(127, 250);
+	wait(750);
+	autonConveyor(127, 250);
 }
 
 task usercontrol()
