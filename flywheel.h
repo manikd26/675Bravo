@@ -23,7 +23,7 @@ float lowSpeed = 50;
 int index = 0;
 int rpmIndex = 0;
 int motorValues[4]= {0, 80, 60, 40};
-int rpmValues[4] = {0, 1650, 1300, 1200};
+int rpmValues[4] = {0, 1650, 1450, 1175};
 float currentSpeed = 0.0;
 float currentRpm = 0.0;
 
@@ -40,9 +40,9 @@ float KiR = Ki;
 float KdR = Kd;
 
 //Low
-float KpLow = 0.0175000; //0.0150/0.0185
-float KiLow = 0.000095; //0.00009
-float KdLow = 0.00005; //0.000005
+float KpLow = 0.0011550000; //0.0175
+float KiLow = 0.000001; //0.000095
+float KdLow = 0.000055555555; //0.00005
 //Mid
 float KpMid = 0.0100;
 float KiMid = 0.000009;
@@ -179,7 +179,7 @@ void PIDlaunch(float target)
 	flyEncRight = 0;
 	lastTime = nSysTime;
 
-	wait1Msec(35);
+	wait1Msec(30);
 }
 task flywheelSpeedSelector()
 {
