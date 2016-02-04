@@ -93,12 +93,12 @@ task usercontrol()
 			if (currentRpm != 0) {
 				setPIDConstants();
 				PIDlaunch(currentRpm);
-		  }
-		  else {
-		  	powerLeft = 0.0;
-		  	powerRight = 0.0;
-		  }
-				setFlywheels(powerLeft, powerRight);
+			}
+			else {
+				powerLeft = 0.0;
+				powerRight = 0.0;
+			}
+			setFlywheels(powerLeft, powerRight);
 		}
 
 		if (getTaskState(drive) == taskStateStopped)
