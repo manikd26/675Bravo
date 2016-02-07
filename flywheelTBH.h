@@ -23,32 +23,22 @@ int rpmValues[4] = {0, 1550, 1450, 1125};
 float currentSpeed = 0.0;
 float currentRpm = 0.0;
 
+//TBH Constants
+float Kg = 0.0;
+float KgLow = 0.0;
+float KgMid = 0.0;
+float KgHigh = 0.0;
 
-//PID Constants
-float Kp = 0.0;
-float Ki = 0.0;
-float Kd = 0.0;
-float KpL = Kp;
-float KiL = Ki;
-float KdL = Kd;
-float KpR = Kp;
-float KiR = Ki;
-float KdR = Kd;
+float leftDrive;
+float rightDrive;
+float leftDriveZero;
+float rightDriveZero;
+long crossLeft;
+long crossRight;
+float leftDriveApprox;
+float rightDriveApprox;
 
-//Low
-float KpLow = 0.00150000; //0.0175 //0.015
-float KiLow = 0.0000000; //0.000095
-float KdLow = 0.000; //0.00005
-//Mid
-float KpMid = 0.0100;
-float KiMid = 0.000009;
-float KdMid = 0.00005;
-//High
-float KpHigh = 0.000550;//0.0005
-float KiHigh = 0.0000008;
-float KdHigh = 0.00005;//0.0
-
-//PID Calculation Variables
+//TBH Calculation Variables
 float rpmLeft;
 float rpmRight;
 
@@ -56,17 +46,6 @@ float leftError;
 float rightError;
 float lastErrorLeft;
 float lastErrorRight;
-
-float pLeft;
-float pRight;
-float intRawLeft;
-float intRawRight;
-float intLeft;
-float intRight;
-float dLeft;
-float dRight;
-
-float integralActiveZone = 0.0; //value of rpm after which proportion stops taking effect
 
 //Launcher Power
 float powerLeft = 0.0;
@@ -85,98 +64,86 @@ void setFlywheels(float left, float right)
 	motor[btmRightLaunch] = r;
 	motor[topRightLaunch] = r;
 }
-void setPIDConstants()
+
+void setTBHConstants()
 {
 	if (currentRpm == rpmValues[1])
 	{
-		Kp = KpHigh;
-		Ki = KiHigh;
-		Kd = KdHigh;
+		Kg = KgHigh;
 	}
 	if (currentRpm == rpmValues[2])
 	{
-		Kp = KpMid;
-		Ki = KiMid;
-		Kd = KdMid;
+		Kg = KgMid;
 	}
 	if (currentRpm == rpmValues[3])
 	{
-		Kp = KpLow;
-		Ki = KiLow;
-		Kd = KdLow;
+		Kg = KgLow;
 	}
 }
-void PIDlaunch(float target)
+
+void TBHLaunch(float target)
 {
-	float KpL = Kp;
-	float KiL = Ki;
-	float KdL = Kd;
-	float KpR = Kp;
-	float KiR = Ki;
-	float KdR = Kd;
 	float deltaTime = abs(nSysTime - lastTime);
 	float rpmConversion = ((launcherRatio * 60000) / deltaTime) / ticksPerRev;
 	rpmLeft = abs(flyEncLeft * rpmConversion);
 	rpmRight = abs(flyEncRight * rpmConversion);
 
-
 	leftError = target - rpmLeft;
 	rightError = target - rpmRight;
 
-	//Proportion
-	pLeft = KpL*leftError;
-	pRight = KpR*rightError;
+	// Use Kp as gain
+	leftDrive =  leftDrive + (leftError * Kg);
+	rightDrive = rightDrive + (rightError *Kg);
 
-	//Integral
-	if (abs(leftError) < integralActiveZone && leftError != 0)
-	{
-		intRawLeft = intRawLeft + leftError;
+	// Clip - we are only going forwards
+	if(leftDrive > 1)
+		leftDrive = 1;
+	if(leftDrive < 0)
+		leftDrive = 0;
+
+	if(rightDrive > 1)
+		rightDrive = 1;
+	if(rightDrive < 0)
+		rightDrive = 0;
+
+	// Z-cross LEFT
+	if(sgn(leftError) != sgn(lastErrorLeft)) {
+		// First zero crossing after a new set velocity command
+		if(crossLeft) {
+			// Set drive to the open loop approximation
+			leftDrive = leftDriveApprox;
+			crossLeft = 0;
+		}
+		else
+			leftDrive = 0.5 * (leftDrive + leftDriveZero);
+
+		// Save this drive value in the "tbh" variable
+		leftDriveZero = leftDrive;
 	}
-	else //if error is so big and P is still taking effect, raw = 0
-	{
-		intRawLeft = 0;
+
+	// Z-cross LEFT
+	if(sgn(rightError) != sgn(lastErrorRight)) {
+		// First zero crossing after a new set velocity command
+		if(crossRight) {
+			// Set drive to the open loop approximation
+			rightDrive = rightDriveApprox;
+			crossRight = 0;
+		}
+		else
+			rightDrive = 0.5 * (rightDrive + rightDriveZero);
+
+		// Save this drive value in the "tbh" variable
+		rightDriveZero = rightDrive;
 	}
 
-	if (abs(rightError) < integralActiveZone && rightError != 0)
-	{
-		intRawRight = intRawRight + rightError;
-	}
-	else
-	{
-		intRawRight = 0;
-	}
+	powerLeft = (leftDrive * 127) + 0.5;
+	powerRight = (rightDrive * 127) + 0.5;
 
-	intLeft = KiL * intRawLeft;
-	intRight = KiR * intRawRight;
-
-
-	//Derivative
-	dLeft = KdL*(leftError - lastErrorLeft);
-	dRight = KdR*(rightError - lastErrorRight);
+	// Save last error
 	lastErrorLeft = leftError;
 	lastErrorRight = rightError;
-
-	if (leftError == 0)
-	{
-		dLeft = 0;
-	}
-	if (rightError == 0)
-	{
-		dRight = 0;
-	}
-
-
-	//Final Power
-	powerLeft += pLeft + intLeft + dLeft; //should be P+I+D
-	powerRight += pRight + intRight + dRight;
-	lastErrorLeft = leftError;
-	lastErrorRight = rightError;
-	flyEncLeft = 0;
-	flyEncRight = 0;
-	lastTime = nSysTime;
-
-	wait1Msec(30);
 }
+
 task flywheelSpeedSelector()
 {
 	if (rpmMode) {
@@ -187,8 +154,6 @@ task flywheelSpeedSelector()
 		currentRpm = rpmValues[rpmIndex];
 		powerLeft = motorValues[rpmIndex];
 		powerRight = motorValues[rpmIndex];
-		//PIDlaunch(currentRpm);
-		//setFlywheels(powerLeft, powerRight);
 	}
 	else {
 		index++;
@@ -208,13 +173,9 @@ task flywheelSpeedAdjuster()
 	if (rpmMode) {
 		if (speedUp) {
 			currentRpm += 20;
-			//PIDlaunch(currentRpm);
-			//setFlywheels(powerLeft, powerRight);
 		}
 		else if (speedDown){
 			currentRpm -= 20;
-			//PIDlaunch(currentRpm);
-			//setFlywheels(powerLeft, powerRight);
 		}
 	}
 	else {
@@ -236,6 +197,6 @@ task autoFlyWheel() {
 	motor[intake] = 127;
 	setFlywheels(80, 80);
 	while(true) {
-		PIDlaunch(1650);
+		TBHlaunch(1650);
 	}
 }
