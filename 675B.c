@@ -53,11 +53,11 @@ task autonomous()
 	startTask(autoFlyWheel);
 	wait(2500);
 	autonConveyor(127, 250);
-	wait(750);
+	wait(775);
 	autonConveyor(127, 250);
-	wait(750);
+	wait(775);
 	autonConveyor(127, 250);
-	wait(750);
+	wait(775);
 	autonConveyor(127, 250);
 }
 
