@@ -19,7 +19,7 @@ float launcherRatio = 9.8;
 int index = 0;
 int rpmIndex = 0;
 int motorValues[4]= {0, 82, 60, 40};
-int rpmValues[4] = {0, 1600, 1450, 1125};
+int rpmValues[4] = {0, 1600, 1450, 1170};
 float currentSpeed = 0.0;
 float currentRpm = 0.0;
 
@@ -36,9 +36,9 @@ float KiR = Ki;
 float KdR = Kd;
 
 //Low
-float KpLow = 0.0015000; //0.0175 //0.0015
-float KiLow = 0.0000000; //0.00000001
-float KdLow = 0.0000100; //0.00001
+float KpLow = 0.002550; //0.0175 //0.0015
+float KiLow = 0.0000000960; //0.00000001
+float KdLow = 0.10500; //0.00001
 //Mid
 float KpMid = 0.0100;
 float KiMid = 0.000009;
@@ -236,6 +236,6 @@ task autoFlyWheel() {
 	motor[intake] = 127;
 	setFlywheels(84, 84);
 	while(true) {
-		PIDlaunch(1675);
+		PIDlaunch(1650);
 	}
 }
