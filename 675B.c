@@ -83,8 +83,7 @@ task usercontrol()
 				speedUp = true;
 			}
 			else {
-				speedDown = true;
-			}
+				speedDown = true;			}
 			startTask(flywheelSpeedAdjuster);
 			wait1Msec(100);
 		}
