@@ -18,8 +18,8 @@ float launcherRatio = 9.8;
 //Target RPMs and Motor Values
 int index = 0;
 int rpmIndex = 0;
-int motorValues[4]= {0, 82, 60, 40};
-int rpmValues[4] = {0, 1600, 1350, 1140};
+int motorValues[3]= {0, 40, 82};
+int rpmValues[3] = {0, 1170, 1600};
 float currentSpeed = 0.0;
 float currentRpm = 0.0;
 
@@ -36,13 +36,10 @@ float KiR = Ki;
 float KdR = Kd;
 
 //Low
-float KpLow = 0.003; //0.0031
-float KiLow = 0.0000000; //00.0000000750;
-float KdLow = 0.0750; //0.105
-//Mid
-float KpMid = 0.0100;
-float KiMid = 0.000009;
-float KdMid = 0.00005;
+float KpLow = 0.002550; //0.0175 //0.0015
+float KiLow = 0.0000000960; //0.00000001
+float KdLow = 0.10500; //0.00001
+
 //High
 float KpHigh = 0.000630;//0.0006
 float KiHigh = 0.0000004; //0000008
@@ -87,19 +84,13 @@ void setFlywheels(float left, float right)
 }
 void setPIDConstants()
 {
-	if (currentRpm == rpmValues[1])
+	if (currentRpm == rpmValues[2])
 	{
 		Kp = KpHigh;
 		Ki = KiHigh;
 		Kd = KdHigh;
 	}
-	if (currentRpm == rpmValues[2])
-	{
-		Kp = KpMid;
-		Ki = KiMid;
-		Kd = KdMid;
-	}
-	if (currentRpm == rpmValues[3])
+	if (currentRpm == rpmValues[1])
 	{
 		Kp = KpLow;
 		Ki = KiLow;
@@ -181,7 +172,7 @@ task flywheelSpeedSelector()
 {
 	if (rpmMode) {
 		rpmIndex++;
-		if (rpmIndex > 3) {
+		if (rpmIndex > 2) {
 			rpmIndex = 0;
 		}
 		currentRpm = rpmValues[rpmIndex];
@@ -192,7 +183,7 @@ task flywheelSpeedSelector()
 	}
 	else {
 		index++;
-		if (index > 3) {
+		if (index > 2) {
 			index = 0;
 			launcherOn = false;
 			lastLauncherBtn = false;

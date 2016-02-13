@@ -18,15 +18,14 @@ float launcherRatio = 9.8;
 //Target RPMs and Motor Values
 int index = 0;
 int rpmIndex = 0;
-int motorValues[4]= {0, 80, 60, 40};
-int rpmValues[4] = {0, 1550, 1450, 1125};
+int motorValues[3]= {0, 40, 80};
+int rpmValues[3] = {0, 1170, 1600};
 float currentSpeed = 0.0;
 float currentRpm = 0.0;
 
 //TBH Constants
 float Kg = 0.0;
 float KgLow = 0.0;
-float KgMid = 0.0;
 float KgHigh = 0.0;
 
 float leftDrive;
@@ -67,21 +66,17 @@ void setFlywheels(float left, float right)
 
 void setTBHConstants()
 {
-	if (currentRpm == rpmValues[1])
+	if (currentRpm == rpmValues[2])
 	{
 		Kg = KgHigh;
 	}
-	if (currentRpm == rpmValues[2])
-	{
-		Kg = KgMid;
-	}
-	if (currentRpm == rpmValues[3])
+	if (currentRpm == rpmValues[1])
 	{
 		Kg = KgLow;
 	}
 }
 
-void TBHLaunch(float target)
+void TBHlaunch(float target)
 {
 	float deltaTime = abs(nSysTime - lastTime);
 	float rpmConversion = ((launcherRatio * 60000) / deltaTime) / ticksPerRev;
