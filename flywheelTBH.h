@@ -19,14 +19,14 @@ float launcherRatio = 9.8;
 int index = 0;
 int rpmIndex = 0;
 int motorValues[3]= {0, 40, 80};
-int rpmValues[3] = {0, 1170, 1600};
+int rpmValues[3] = {0, 1090, 2500};
 float currentSpeed = 0.0;
 float currentRpm = 0.0;
 
 //TBH Constants
 float Kg = 0.0;
-float KgLow = 0.0;
-float KgHigh = 0.0;
+float KgLow = 0.0001875;
+float KgHigh = 0.057;
 
 float leftDrive;
 float rightDrive;
@@ -137,13 +137,18 @@ void TBHlaunch(float target)
 	// Save last error
 	lastErrorLeft = leftError;
 	lastErrorRight = rightError;
+		flyEncLeft = 0;
+	flyEncRight = 0;
+	lastTime = nSysTime;
+
+	wait1Msec(25);
 }
 
 task flywheelSpeedSelector()
 {
 	if (rpmMode) {
 		rpmIndex++;
-		if (rpmIndex > 3) {
+		if (rpmIndex > 2) {
 			rpmIndex = 0;
 		}
 		currentRpm = rpmValues[rpmIndex];
@@ -152,7 +157,7 @@ task flywheelSpeedSelector()
 	}
 	else {
 		index++;
-		if (index > 3) {
+		if (index > 2) {
 			index = 0;
 			launcherOn = false;
 			lastLauncherBtn = false;
