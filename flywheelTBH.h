@@ -19,7 +19,7 @@ float launcherRatio = 9.8;
 int index = 0;
 int rpmIndex = 0;
 int motorValues[3]= {0, 40, 80};
-int rpmValues[3] = {0, 1070, 1550};
+int rpmValues[3] = {0, 1070, 1450};
 float currentSpeed = 0.0;
 float currentRpm = 0.0;
 
@@ -197,6 +197,7 @@ task autoFlyWheel() {
 	motor[intake] = 127;
 	setFlywheels(80, 80);
 	while(true) {
-		TBHlaunch(1650);
+		setTBHConstants();
+		TBHlaunch(rpmValues[2]);
 	}
 }

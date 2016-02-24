@@ -55,11 +55,13 @@ task autonomous()
 	wait(2500);
 	autonConveyor(127, 250);
 	wait(1200);
-	autonConveyor(127, 250);
+	autonConveyor(127, 400);
 	wait(1200);
 	autonConveyor(127, 250);
 	wait(1200);
-	autonConveyor(127, 250);
+	autonConveyor(127, 1000);
+	wait(1000);
+	setFlywheels(0,0);
 }
 
 task usercontrol()
