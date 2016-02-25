@@ -18,15 +18,15 @@ float launcherRatio = 9.8;
 //Target RPMs and Motor Values
 int index = 0;
 int rpmIndex = 0;
-int motorValues[3]= {0, 52, 80};
-int rpmValues[3] = {0, 945, 1450};
+int motorValues[3]= {0, 52, 82};
+int rpmValues[3] = {0, 945, 1500};
 float currentSpeed = 0.0;
 float currentRpm = 0.0;
 
 //TBH Constants
 float Kg = 0.0;
 float KgLow = 0.00006; //0.000130
-float KgHigh = 0.041;
+float KgHigh = 0.0001; //0.041
 
 float leftDrive;
 float rightDrive;
