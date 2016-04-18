@@ -110,8 +110,5 @@ task usercontrol()
 			startTask(rollerIntake);
 		if (getTaskState(conveyorBelt) == taskStateStopped)
 			startTask(conveyorBelt);
-		if (getTaskState(ramp) == taskStateStopped)
-			startTask(ramp);
-
 	}
 }

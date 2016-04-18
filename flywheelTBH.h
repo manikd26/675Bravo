@@ -19,14 +19,14 @@ float launcherRatio = 9.8;
 int index = 0;
 int rpmIndex = 0;
 int motorValues[3]= {0, 52, 82};
-int rpmValues[3] = {0, 945, 1450}; //1450 for preloads
+int rpmValues[3] = {0, 945, 1500}; //1450 for preloads
 float currentSpeed = 0.0;
 float currentRpm = 0.0;
 
 //TBH Constants
 float Kg = 0.0;
 float KgLow = 0.00006; //0.00006
-float KgHigh = 0.041; //(0.041/1450) or (0.0001/1500)
+float KgHigh = 0.0001; //(0.041/1450) or (0.0001/1500)
 
 float leftDrive;
 float rightDrive;
@@ -195,7 +195,7 @@ task flywheelSpeedAdjuster()
 
 task autoFlyWheel() {
 	motor[intake] = 127;
-	setFlywheels(80, 80);
+	setFlywheels(82, 82);
 	while(true) {
 		setTBHConstants();
 		TBHlaunch(rpmValues[2]);
